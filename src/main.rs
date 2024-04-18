@@ -56,9 +56,21 @@ async fn main() -> Result<(), String> {
 
     println!("Show main menu");
 
+    show_menu();
+
     // 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
 
     Ok(())
+}
+
+fn show_menu() {
+    println!();
+    println!("===== $ {}{}{} $ =====", "R".red(), "P".blue(), "G".green());
+    println!();
+    println!("(1)\tSetup cargo project");
+    println!("(2)\tChange GitHub credentials");
+    println!();
+    println!("(0)\tQuit")
 }
 
 fn config_at_startup(config_file_path: &PathBuf) -> (String, String) {
