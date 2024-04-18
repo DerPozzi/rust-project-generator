@@ -68,8 +68,17 @@ async fn main() -> Result<(), String> {
                 println!("Quitting program...");
                 break;
             }
-            1 => todo!(),
-            2 => todo!(),
+            1 => {
+                println!("");
+                todo!()
+            }
+            2 => match change_credentials(&config_file_path, &mut github_controller).await {
+                Ok(()) => {
+                    println!("Change successfull, return to menu...");
+                    sleep(Duration::from_secs_f64(1.5));
+                }
+                Err(err) => return Err(format!("{}", err)),
+            },
             _ => {}
         }
     }
@@ -77,6 +86,23 @@ async fn main() -> Result<(), String> {
     // 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
 
     Ok(())
+}
+
+async fn change_credentials(
+    config_file_path: &PathBuf,
+    github_controller: &mut GitHubController,
+) -> Result<(), CustomError> {
+    println!("");
+    let (username, pat) = setup_new_config(&config_file_path);
+    github_controller.set_username(username);
+    github_controller.set_personal_access_token(pat);
+
+    match github_controller.test_github_access().await {
+        Ok(()) => {
+            return Ok(());
+        }
+        Err(err) => return Err(err),
+    }
 }
 
 fn show_menu() {
