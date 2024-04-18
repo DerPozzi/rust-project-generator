@@ -2,7 +2,7 @@ use crate::custom_error::CustomError;
 use colored::*;
 use github_api::GitHubController;
 use read_input::prelude::*;
-use std::path::PathBuf;
+use std::{path::PathBuf, process::Command, thread::sleep, time::Duration};
 
 mod custom_error;
 mod github_api;
@@ -54,9 +54,25 @@ async fn main() -> Result<(), String> {
         }
     }
 
-    println!("Show main menu");
+    println!("Starting {}{}{}...", "R".red(), "P".blue(), "G".green());
+    sleep(Duration::from_secs_f64(1.5));
 
-    show_menu();
+    loop {
+        clear_screen();
+        show_menu();
+
+        print!("{}{}{} ", ">".red(), ">".blue(), ">".green());
+        match input::<u8>().get() {
+            0 => {
+                println!();
+                println!("Quitting program...");
+                break;
+            }
+            1 => todo!(),
+            2 => todo!(),
+            _ => {}
+        }
+    }
 
     // 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
 
@@ -70,7 +86,16 @@ fn show_menu() {
     println!("(1)\tSetup cargo project");
     println!("(2)\tChange GitHub credentials");
     println!();
-    println!("(0)\tQuit")
+    println!("(0)\tQuit");
+    println!()
+}
+
+fn clear_screen() {
+    Command::new("clear")
+        .spawn()
+        .expect("Couldn't spawn 'clear' thread")
+        .wait()
+        .unwrap();
 }
 
 fn config_at_startup(config_file_path: &PathBuf) -> (String, String) {
