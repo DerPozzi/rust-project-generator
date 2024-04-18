@@ -23,6 +23,7 @@ impl GitHubController {
     }
 
     pub async fn test_github_access(&self) -> Result<(), crate::CustomError> {
+        println!("Testing auth credentials...");
         let client = reqwest::Client::new();
         let request = client
             .get(&self.url)
