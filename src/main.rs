@@ -70,7 +70,8 @@ async fn main() -> Result<(), String> {
             }
             1 => {
                 println!("");
-                todo!()
+                let _ = generate_new_project().await;
+                break;
             }
             2 => match change_credentials(&config_file_path, &mut github_controller).await {
                 Ok(()) => {
@@ -85,6 +86,12 @@ async fn main() -> Result<(), String> {
 
     // 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
 
+    Ok(())
+}
+
+async fn generate_new_project() -> Result<(), CustomError> {
+    let current_dir = std::env::current_dir().expect("Couldn't get current directory...");
+    println!("{:?}", current_dir);
     Ok(())
 }
 
