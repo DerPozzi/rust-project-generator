@@ -70,8 +70,11 @@ async fn main() -> Result<(), String> {
             }
             1 => {
                 println!("");
-                let _ = generate_new_project().await;
-                break;
+                match generate_new_project(&github_controller).await {
+                    Ok(_) => {}
+                    Err(_) => {}
+                }
+                sleep(Duration::from_secs_f64(1.5))
             }
             2 => match change_credentials(&config_file_path, &mut github_controller).await {
                 Ok(()) => {
@@ -84,14 +87,75 @@ async fn main() -> Result<(), String> {
         }
     }
 
-    // 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
-
     Ok(())
 }
 
-async fn generate_new_project() -> Result<(), CustomError> {
+async fn generate_new_project(github_controller: &GitHubController) -> Result<(), CustomError> {
+    print!("Enter the project name [e.g. rust-project-generator]: ");
+    let project_name = input::<String>().get();
+    print!("Private [y/N]? ");
+    let private = match input::<char>().get() {
+        'y' => true,
+        'Y' => true,
+        _ => false,
+    };
+    println!("Short description (optional): ");
+    let description = input::<String>().get();
+    match github_controller
+        .generate_repository(project_name.clone(), description, private)
+        .await
+    {
+        Ok(()) => {
+            println!("Successfully generated repository");
+            println!("Cloning repository...");
+
+            Command::new("git")
+                .arg("clone")
+                .arg(format!(
+                    "git@github.com:{}/{}.git",
+                    github_controller.get_username(),
+                    project_name
+                ))
+                .spawn()
+                .expect("Couldn't spawn task")
+                .wait()
+                .expect("Couldn't run git command");
+        }
+        Err(err) => {
+            println!("{}", err);
+            print!("Generate local [y/N]? ");
+            match input::<char>().get() {
+                'y' => {}
+                'Y' => {}
+                _ => {
+                    return Err(CustomError::GitHubErr(
+                        custom_error::GitHubError::RepoCreate,
+                    ))
+                }
+            }
+        }
+    }
     let current_dir = std::env::current_dir().expect("Couldn't get current directory...");
-    println!("{:?}", current_dir);
+    println!(
+        "Generating project {} in {}",
+        project_name,
+        current_dir.as_os_str().to_str().unwrap()
+    );
+
+    let target_path =
+        PathBuf::from(current_dir.to_string_lossy().to_string() + "/" + &project_name);
+
+    if std::env::set_current_dir(target_path).is_err() {
+        return Err(CustomError::CargoErr("Couldn't open directory".to_string()));
+    }
+
+    match Command::new("cargo").arg("init").spawn().unwrap().wait() {
+        Err(err) => return Err(CustomError::CargoErr(err.to_string())),
+        Ok(_) => println!("Successfully generated project."),
+    }
+
+    std::env::set_current_dir(current_dir).unwrap();
+    sleep(Duration::from_secs(3));
     Ok(())
 }
 
