@@ -70,7 +70,7 @@ impl GitHubController {
                 if resp.status() == 201 {
                     return Ok(());
                 } else if resp.status() == 422 {
-                    return Err(CustomError::GitHubErr(GitHubError::AlreadyCreated))
+                    return Err(CustomError::GitHubErr(GitHubError::AlreadyCreated));
                 } else {
                     return Err(CustomError::GitHubErr(GitHubError::RepoCreate));
                 }

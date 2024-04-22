@@ -72,19 +72,20 @@ async fn main() -> Result<(), String> {
                 println!("");
                 match generate_new_project(&github_controller).await {
                     Ok(_) => {}
-                    Err(_) => {}
+                    Err(err) => {
+                        println!("{err}")
+                    }
                 }
-                sleep(Duration::from_secs_f64(1.5))
             }
             2 => match change_credentials(&config_file_path, &mut github_controller).await {
                 Ok(()) => {
                     println!("Change successfull, return to menu...");
-                    sleep(Duration::from_secs_f64(1.5));
                 }
                 Err(err) => return Err(format!("{}", err)),
             },
             _ => {}
         }
+        sleep(Duration::from_secs_f64(1.5))
     }
 
     Ok(())
@@ -121,19 +122,7 @@ async fn generate_new_project(github_controller: &GitHubController) -> Result<()
                 .wait()
                 .expect("Couldn't run git command");
         }
-        Err(err) => {
-            println!("{}", err);
-            print!("Generate local [y/N]? ");
-            match input::<char>().get() {
-                'y' => {}
-                'Y' => {}
-                _ => {
-                    return Err(CustomError::GitHubErr(
-                        custom_error::GitHubError::RepoCreate,
-                    ))
-                }
-            }
-        }
+        Err(err) => return Err(err),
     }
     let current_dir = std::env::current_dir().expect("Couldn't get current directory...");
     println!(
