@@ -4,6 +4,7 @@ use std::fmt::Display;
 pub enum GitHubError {
     Authentication,
     RepoCreate,
+    InitialCommit,
 }
 
 #[derive(Debug)]
@@ -21,6 +22,9 @@ impl Display for CustomError {
             }
             CustomError::GitHubErr(GitHubError::RepoCreate) => {
                 write!(f, "ERROR: Couldn't create GitHub repo")
+            }
+            CustomError::GitHubErr(GitHubError::InitialCommit) => {
+                write!(f, "ERROR: Something went wrong during commit")
             }
         }
     }
