@@ -5,6 +5,7 @@ pub enum GitHubError {
     Authentication,
     RepoCreate,
     InitialCommit,
+    AlreadyCreated
 }
 
 #[derive(Debug)]
@@ -25,6 +26,9 @@ impl Display for CustomError {
             }
             CustomError::GitHubErr(GitHubError::InitialCommit) => {
                 write!(f, "ERROR: Something went wrong during commit")
+            }
+            CustomError::GitHubErr(GitHubError::AlreadyCreated) => {
+                write!(f, "ERROR: Repo already exists")
             }
         }
     }

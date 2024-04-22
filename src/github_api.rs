@@ -62,7 +62,6 @@ impl GitHubController {
             .header("User-Agent", &self.username)
             .header("X-GitHub-Api-Version", "2022-11-28")
             .bearer_auth(&self.personal_access_token)
-
             .json(&test)
             .send()
             .await;
@@ -70,6 +69,8 @@ impl GitHubController {
             Ok(resp) => {
                 if resp.status() == 201 {
                     return Ok(());
+                } else if resp.status() == 422 {
+                    return Err(CustomError::GitHubErr(GitHubError::AlreadyCreated))
                 } else {
                     return Err(CustomError::GitHubErr(GitHubError::RepoCreate));
                 }
