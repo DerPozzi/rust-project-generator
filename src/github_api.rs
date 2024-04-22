@@ -60,7 +60,9 @@ impl GitHubController {
             .client
             .post(&self.url)
             .header("User-Agent", &self.username)
+            .header("X-GitHub-Api-Version", "2022-11-28")
             .bearer_auth(&self.personal_access_token)
+
             .json(&test)
             .send()
             .await;
@@ -85,6 +87,7 @@ impl GitHubController {
             .client
             .get(&self.url)
             .header("User-Agent", &self.username)
+            .header("X-GitHub-Api-Version", "2022-11-28")
             .bearer_auth(&self.personal_access_token)
             .send();
 
