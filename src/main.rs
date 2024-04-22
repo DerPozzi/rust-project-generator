@@ -154,8 +154,46 @@ async fn generate_new_project(github_controller: &GitHubController) -> Result<()
         Ok(_) => println!("Successfully generated project."),
     }
 
+    if let Err(err) = inital_commit() {
+        return Err(err);
+    }
+
     std::env::set_current_dir(current_dir).unwrap();
     sleep(Duration::from_secs(3));
+    Ok(())
+}
+
+fn inital_commit() -> Result<(), CustomError> {
+    println!("Pushing initial commit to origin...");
+    if let Err(_) = Command::new("git")
+        .arg("add")
+        .arg(".")
+        .spawn()
+        .expect("Couldn't start git command")
+        .wait()
+    {
+        return Err(CustomError::GitHubErr(
+            custom_error::GitHubError::InitialCommit,
+        ));
+    }
+    if let Err(_) = Command::new("git")
+        .arg("commit")
+        .arg("-am")
+        .arg("Initial commit")
+        .spawn()
+        .expect("Couldn't start git command")
+        .wait()
+    {
+        return Err(CustomError::GitHubErr(
+            custom_error::GitHubError::InitialCommit,
+        ));
+    }
+    Command::new("git")
+        .arg("push")
+        .spawn()
+        .unwrap()
+        .wait()
+        .unwrap();
     Ok(())
 }
 
