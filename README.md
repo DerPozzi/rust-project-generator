@@ -16,7 +16,8 @@ Eventually you'll be able to delete repos on GitHub and it'll delete the directo
 - [X] Get credentials, save in .rpg and authenticate to GH
 - [X] Generate Repo using API
 - [X] Clone repo and init cargo project inside
-- [ ] Add **Cargo.lock** to .gitignore
+- [X] Add **Cargo.lock** to .gitignore 
+    - Using GitHub .gitignore template and auto init for README
 - [ ] Remove repositories
 - [ ] Preiiter 
 - [ ] Refactor
