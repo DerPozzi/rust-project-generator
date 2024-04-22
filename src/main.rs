@@ -14,7 +14,7 @@ async fn main() -> Result<(), String> {
         .unwrap()
         .expect("ERROR: Couldn't receive home directory");
 
-    config_file_path = PathBuf::from(config_file_path.to_string_lossy().to_string() + "/.rpg");
+    config_file_path.push(".rpg");
 
     let mut github_controller = github_api::GitHubController::new();
 
@@ -142,8 +142,8 @@ async fn generate_new_project(github_controller: &GitHubController) -> Result<()
         current_dir.as_os_str().to_str().unwrap()
     );
 
-    let target_path =
-        PathBuf::from(current_dir.to_string_lossy().to_string() + "/" + &project_name);
+    let mut target_path = current_dir.clone();
+    target_path.push(&project_name);
 
     if std::env::set_current_dir(target_path).is_err() {
         return Err(CustomError::CargoErr("Couldn't open directory".to_string()));

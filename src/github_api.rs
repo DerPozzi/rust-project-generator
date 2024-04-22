@@ -15,6 +15,8 @@ struct GenerateRepoJson {
     name: String,
     description: String,
     private: bool,
+    auto_init: bool,
+    gitignore_template: String,
 }
 
 impl GitHubController {
@@ -49,7 +51,10 @@ impl GitHubController {
             name,
             description,
             private,
+            auto_init: true,
+            gitignore_template: "Rust".to_string(),
         };
+
         let test = serde_json::json!(json);
         let request = self
             .client
