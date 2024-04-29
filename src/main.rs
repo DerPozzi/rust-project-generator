@@ -32,26 +32,25 @@ async fn main() -> Result<(), String> {
     github_controller.set_username(username);
     github_controller.set_personal_access_token(pat);
 
-    match github_controller.test_github_access().await {
-        Ok(()) => println!("Authentication successfull..."),
-        Err(err) => {
-            println!("{}", err);
-            print!("Enter new credentials [y/N]?");
-            let choice = input::<char>().get();
-            if choice == 'y' || choice == 'Y' {
-                let (username, pat) = setup_new_config(&config_file_path);
+    if let Err(err) = github_controller.test_github_access().await {
+        println!("{}", err);
+        print!("Enter new credentials [y/N]?");
+        let choice = input::<char>().get();
+        if choice == 'y' || choice == 'Y' {
+            let (username, pat) = setup_new_config(&config_file_path);
 
-                github_controller.set_username(username);
-                github_controller.set_personal_access_token(pat);
+            github_controller.set_username(username);
+            github_controller.set_personal_access_token(pat);
 
-                if let Err(err) = github_controller.test_github_access().await {
-                    println!("{}", err);
-                    return Err("Quitting application".to_string());
-                }
-            } else {
+            if let Err(err) = github_controller.test_github_access().await {
+                println!("{}", err);
                 return Err("Quitting application".to_string());
             }
+        } else {
+            return Err("Quitting application".to_string());
         }
+    } else {
+        println!("Authentication successfull...")
     }
 
     println!("Starting {}{}{}...", "R".red(), "P".blue(), "G".green());
@@ -70,19 +69,19 @@ async fn main() -> Result<(), String> {
             }
             1 => {
                 println!("");
-                match generate_new_project(&github_controller).await {
-                    Ok(_) => {}
-                    Err(err) => {
-                        println!("{err}")
-                    }
+                if let Err(err) = generate_new_project(&github_controller).await {
+                    println!("{err}")
                 }
             }
-            2 => match change_credentials(&config_file_path, &mut github_controller).await {
-                Ok(()) => {
+            2 => {
+                if let Err(err) =
+                    change_credentials(&config_file_path, &mut github_controller).await
+                {
+                    return Err(format!("{}", err));
+                } else {
                     println!("Change successfull, return to menu...");
                 }
-                Err(err) => return Err(format!("{}", err)),
-            },
+            }
             _ => {}
         }
         sleep(Duration::from_secs_f64(1.5))
@@ -102,27 +101,26 @@ async fn generate_new_project(github_controller: &GitHubController) -> Result<()
     };
     println!("Short description (optional): ");
     let description = input::<String>().get();
-    match github_controller
+    if let Err(err) = github_controller
         .generate_repository(project_name.clone(), description, private)
         .await
     {
-        Ok(()) => {
-            println!("Successfully generated repository");
-            println!("Cloning repository...");
+        return Err(err);
+    } else {
+        println!("Successfully generated repository");
+        println!("Cloning repository...");
 
-            Command::new("git")
-                .arg("clone")
-                .arg(format!(
-                    "git@github.com:{}/{}.git",
-                    github_controller.get_username(),
-                    project_name
-                ))
-                .spawn()
-                .expect("Couldn't spawn task")
-                .wait()
-                .expect("Couldn't run git command");
-        }
-        Err(err) => return Err(err),
+        Command::new("git")
+            .arg("clone")
+            .arg(format!(
+                "git@github.com:{}/{}.git",
+                github_controller.get_username(),
+                project_name
+            ))
+            .spawn()
+            .expect("Couldn't spawn task")
+            .wait()
+            .expect("Couldn't run git command");
     }
     let current_dir = std::env::current_dir().expect("Couldn't get current directory...");
     println!(
@@ -138,9 +136,10 @@ async fn generate_new_project(github_controller: &GitHubController) -> Result<()
         return Err(CustomError::CargoErr("Couldn't open directory".to_string()));
     }
 
-    match Command::new("cargo").arg("init").spawn().unwrap().wait() {
-        Err(err) => return Err(CustomError::CargoErr(err.to_string())),
-        Ok(_) => println!("Successfully generated project."),
+    if let Err(err) = Command::new("cargo").arg("init").spawn().unwrap().wait() {
+        return Err(CustomError::CargoErr(err.to_string()));
+    } else {
+        println!("Successfully generated project.")
     }
 
     if let Err(err) = inital_commit() {
@@ -195,11 +194,10 @@ async fn change_credentials(
     github_controller.set_username(username);
     github_controller.set_personal_access_token(pat);
 
-    match github_controller.test_github_access().await {
-        Ok(()) => {
-            return Ok(());
-        }
-        Err(err) => return Err(err),
+    if let Err(err) = github_controller.test_github_access().await {
+        return Err(err);
+    } else {
+        return Ok(());
     }
 }
 
