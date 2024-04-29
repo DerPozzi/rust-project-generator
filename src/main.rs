@@ -27,10 +27,10 @@ async fn main() -> Result<(), String> {
 
     println!("");
 
-    let (username, pat) = config_at_startup(&config_file_path);
+    let (username, personal_access_token) = load_config_at_start(&config_file_path);
 
     github_controller.set_username(username);
-    github_controller.set_personal_access_token(pat);
+    github_controller.set_personal_access_token(personal_access_token);
 
     if let Err(err) = github_controller.test_github_access().await {
         println!("{}", err);
@@ -133,11 +133,11 @@ async fn generate_new_project(github_controller: &GitHubController) -> Result<()
     target_path.push(&project_name);
 
     if std::env::set_current_dir(target_path).is_err() {
-        return Err(CustomError::CargoErr("Couldn't open directory".to_string()));
+        return Err(CustomError::FilesystemErr("Couldn't open directory".to_string()));
     }
 
     if let Err(err) = Command::new("cargo").arg("init").spawn().unwrap().wait() {
-        return Err(CustomError::CargoErr(err.to_string()));
+        return Err(CustomError::FilesystemErr(err.to_string()));
     } else {
         println!("Successfully generated project.")
     }
@@ -220,7 +220,7 @@ fn clear_screen() {
         .unwrap();
 }
 
-fn config_at_startup(config_file_path: &PathBuf) -> (String, String) {
+fn load_config_at_start(config_file_path: &PathBuf) -> (String, String) {
     let username: String;
     let personal_access_token: String;
 

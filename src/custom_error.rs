@@ -11,14 +11,14 @@ pub enum GitHubError {
 
 #[derive(Debug)]
 pub enum CustomError {
-    CargoErr(String),
+    FilesystemErr(String),
     GitHubErr(GitHubError),
 }
 
 impl Display for CustomError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            CustomError::CargoErr(err) => write!(f, "{}: {}", "ERROR".red(), err),
+            CustomError::FilesystemErr(err) => write!(f, "{}: {}", "ERROR".red(), err),
             CustomError::GitHubErr(GitHubError::Authentication) => {
                 write!(f, "{}: Authentication failed", "ERROR".red())
             }
