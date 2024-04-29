@@ -20,5 +20,6 @@ Eventually you'll be able to delete repos on GitHub and it'll delete the directo
     - Using GitHub .gitignore template and auto init for README
 - [X] Initial commit and push of cargo project
 - [ ] Remove repositories?
+- [ ] Check for valid project name
 - [ ] Prettier 
 - [ ] Refactor
