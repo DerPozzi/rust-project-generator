@@ -1,3 +1,4 @@
+use colored::*;
 use std::fmt::Display;
 
 #[derive(Debug)]
@@ -5,7 +6,7 @@ pub enum GitHubError {
     Authentication,
     RepoCreate,
     InitialCommit,
-    AlreadyCreated
+    AlreadyCreated,
 }
 
 #[derive(Debug)]
@@ -17,18 +18,18 @@ pub enum CustomError {
 impl Display for CustomError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            CustomError::CargoErr(err) => write!(f, "ERROR: {}", err),
+            CustomError::CargoErr(err) => write!(f, "{}: {}", "ERROR".red(), err),
             CustomError::GitHubErr(GitHubError::Authentication) => {
-                write!(f, "ERROR: Authentication failed")
+                write!(f, "{}: Authentication failed", "ERROR".red())
             }
             CustomError::GitHubErr(GitHubError::RepoCreate) => {
-                write!(f, "ERROR: Couldn't create GitHub repo")
+                write!(f, "{}: Couldn't create GitHub repo", "ERROR".red())
             }
             CustomError::GitHubErr(GitHubError::InitialCommit) => {
-                write!(f, "ERROR: Something went wrong during commit")
+                write!(f, "{}: Something went wrong during commit", "ERROR".red())
             }
             CustomError::GitHubErr(GitHubError::AlreadyCreated) => {
-                write!(f, "ERROR: Repo already exists")
+                write!(f, "{}: Repo already exists", "ERROR".red())
             }
         }
     }
