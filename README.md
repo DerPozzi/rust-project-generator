@@ -19,6 +19,6 @@ Eventually you'll be able to delete repos on GitHub and it'll delete the directo
 - [X] Add **Cargo.lock** to .gitignore 
     - Using GitHub .gitignore template and auto init for README
 - [X] Initial commit and push of cargo project
-- [ ] Remove repositories
-- [ ] Preiiter 
+- [ ] Remove repositories?
+- [ ] Prettier 
 - [ ] Refactor
