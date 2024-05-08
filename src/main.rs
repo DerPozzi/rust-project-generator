@@ -94,11 +94,7 @@ async fn generate_new_project(github_controller: &GitHubController) -> Result<()
     print!("Enter the project name [e.g. rust-project-generator]: ");
     let project_name = input::<String>().get();
     print!("Private [y/N]? ");
-    let private = match input::<char>().get() {
-        'y' => true,
-        'Y' => true,
-        _ => false,
-    };
+    let private = matches!(input::<char>().get(), 'y' | 'Y');
     println!("Short description (optional): ");
     let description = input::<String>().get();
     if let Err(err) = github_controller
@@ -151,24 +147,24 @@ async fn generate_new_project(github_controller: &GitHubController) -> Result<()
 
 fn inital_commit() -> Result<(), CustomError> {
     println!("Pushing initial commit to origin...");
-    if let Err(_) = Command::new("git")
+    if Command::new("git")
         .arg("add")
         .arg(".")
         .spawn()
         .expect("Couldn't start git command")
-        .wait()
+        .wait().is_err()
     {
         return Err(CustomError::GitHubErr(
             custom_error::GitHubError::InitialCommit,
         ));
     }
-    if let Err(_) = Command::new("git")
+    if  Command::new("git")
         .arg("commit")
         .arg("-am")
         .arg("Initial commit")
         .spawn()
         .expect("Couldn't start git command")
-        .wait()
+        .wait().is_err()
     {
         return Err(CustomError::GitHubErr(
             custom_error::GitHubError::InitialCommit,
