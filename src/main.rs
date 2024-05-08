@@ -25,7 +25,7 @@ async fn main() -> Result<(), String> {
         "G".green()
     );
 
-    println!("");
+    println!();
 
     let (username, personal_access_token) = load_config_at_start(&config_file_path);
 
@@ -68,7 +68,7 @@ async fn main() -> Result<(), String> {
                 break;
             }
             1 => {
-                println!("");
+                println!();
                 if let Err(err) = generate_new_project(&github_controller).await {
                     println!("{err}")
                 }
@@ -142,9 +142,7 @@ async fn generate_new_project(github_controller: &GitHubController) -> Result<()
         println!("Successfully generated project.")
     }
 
-    if let Err(err) = inital_commit() {
-        return Err(err);
-    }
+    inital_commit()?;
 
     std::env::set_current_dir(current_dir).unwrap();
     sleep(Duration::from_secs(3));
@@ -189,15 +187,15 @@ async fn change_credentials(
     config_file_path: &PathBuf,
     github_controller: &mut GitHubController,
 ) -> Result<(), CustomError> {
-    println!("");
-    let (username, pat) = setup_new_config(&config_file_path);
+    println!();
+    let (username, pat) = setup_new_config(config_file_path);
     github_controller.set_username(username);
     github_controller.set_personal_access_token(pat);
 
     if let Err(err) = github_controller.test_github_access().await {
-        return Err(err);
+        Err(err)
     } else {
-        return Ok(());
+        Ok(())
     }
 }
 
@@ -224,13 +222,13 @@ fn load_config_at_start(config_file_path: &PathBuf) -> (String, String) {
     let username: String;
     let personal_access_token: String;
 
-    if !std::fs::metadata(&config_file_path).is_ok() {
-        (username, personal_access_token) = setup_new_config(&config_file_path);
+    if std::fs::metadata(config_file_path).is_err() {
+        (username, personal_access_token) = setup_new_config(config_file_path);
     } else {
         println!("Retrieving credentials from config...");
-        let config_content = std::fs::read_to_string(&config_file_path).unwrap();
+        let config_content = std::fs::read_to_string(config_file_path).unwrap();
         let lines: Vec<&str> = config_content.lines().collect();
-        username = lines.get(0).unwrap().to_string();
+        username = lines.first().unwrap().to_string();
         personal_access_token = lines.get(1).unwrap().to_string();
     }
     (username, personal_access_token)
@@ -242,7 +240,7 @@ fn setup_new_config(config_path: &PathBuf) -> (String, String) {
     let username = input::<String>().get();
     print!("Personal Access Token: ");
     let pat = input::<String>().get();
-    let _ = std::fs::write(&config_path, format!("{}\n{}", username, pat));
+    let _ = std::fs::write(config_path, format!("{}\n{}", username, pat));
 
     println!("Testing credentials...");
 

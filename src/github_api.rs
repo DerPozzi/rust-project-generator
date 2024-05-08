@@ -68,7 +68,7 @@ impl GitHubController {
         match request {
             Ok(resp) => {
                 if resp.status() == 201 {
-                    return Ok(());
+                    Ok(())
                 } else if resp.status() == 422 {
                     return Err(CustomError::GitHubErr(GitHubError::AlreadyCreated));
                 } else {
@@ -77,7 +77,7 @@ impl GitHubController {
             }
             Err(err) => {
                 println!("ERROR: {}", err);
-                return Err(CustomError::GitHubErr(GitHubError::RepoCreate));
+                Err(CustomError::GitHubErr(GitHubError::RepoCreate))
             }
         }
     }
@@ -96,7 +96,7 @@ impl GitHubController {
             Ok(res) => {
                 let status = res.status();
                 if status == 200 {
-                    return Ok(());
+                    Ok(())
                 } else if status == 401 || status == 403 || status == 404 {
                     return Err(crate::custom_error::CustomError::GitHubErr(
                         GitHubError::Authentication,
